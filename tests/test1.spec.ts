@@ -16,9 +16,9 @@ test('login page loads correctly', async ({ page }) => {
 
     await expect(page).toHaveURL('/account');
 
-    await expect(page.locator('h1')).toContainText('My account');
+    await expect(page.getByTestId('page-title')).toContainText('My account');
 
-    await expect(page.locator('.navbar')).toContainText('Jane Doe'); 
+    await expect(page.getByTestId("nav-menu")).toContainText('Jane Doe'); 
 });
 
 
@@ -27,11 +27,11 @@ test('login page loads correctly', async ({ page }) => {
 test('User can view Combination Pliers product details', async ({ page }) => {
     await page.goto('/');
   
-    await page.locator('text=Combination Pliers').click();
+    await page.locator('[data-test="product-name"]', { hasText: 'Combination Pliers' }).click();
 
     await expect(page).toHaveURL(/\/product/);
     
-    await expect(page.getByTestId("product-name")).toHaveText('Combination Pliers');
+    await page.locator('[data-test="product-name"]', { hasText: 'Combination Pliers' });
   
     await expect(page.locator('text=14.15')).toBeVisible();
   
