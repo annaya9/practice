@@ -18,7 +18,8 @@ test('login page loads correctly', async ({ page }) => {
 
     await expect(page.getByTestId('page-title')).toContainText('My account');
 
-    await expect(page.getByTestId("nav-menu")).toContainText('Jane Doe'); 
+    await expect(page.getByTestId("nav-menu")).toContainText(process.env.USER_NAME!);
+
 });
 
 
@@ -38,6 +39,9 @@ test('User can view Combination Pliers product details', async ({ page }) => {
     await expect(page.getByTestId('unit-price')).toHaveText('14.15');
   
     await expect(page.getByTestId("add-to-cart")).toBeVisible();
+
+    await expect(page.getByTestId("add-to-favorites")).toBeVisible();
+
   });
 
   
