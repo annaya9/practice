@@ -4,40 +4,50 @@ dotenv.config();
 import { test, expect } from '@playwright/test';
 import { LoginPage } from '../pages/login.page';
 import { HomePage } from '../pages/HomePage';
+import { ProductPage } from '../pages/ProductPage';
+import { AccountPage } from '../pages/AccountPage';
 
 
-test('login page loads correctly', async ({ page }) => {
+
+test('login page loads correctly and user sees account page', async ({ page }) => {
   const loginPage = new LoginPage(page);
+  const accountPage = new AccountPage(page);
 
   await loginPage.goto();
 
-  await expect(page.getByTestId("login-submit")).toBeVisible();
+  await expect(loginPage.submitButton).toBeVisible();
 
   await loginPage.performLogin(process.env.USER_EMAIL!, process.env.USER_PASSWORD!);
 
-  await expect(page).toHaveURL('/account');
+  await expect(page).toHaveURL(/\/account/);
 
-  await expect(page.getByTestId('page-title')).toContainText('My account');
+  await accountPage.waitForLoad();
 
-  await expect(page.getByTestId("nav-menu")).toContainText(process.env.USER_NAME!);
+  await expect(accountPage.pageTitle).toContainText('My account');
+
+  await expect(accountPage.header.navMenu).toContainText(process.env.USER_NAME!);
 });
 
 
 
     
 
-
 test('User can view Combination Pliers product details', async ({ page }) => {
+
   const homePage = new HomePage(page);
   await homePage.goto();
 
-  const productPage = await homePage.openProduct('Combination Pliers');
+  await homePage.openProduct('Combination Pliers');
+
+ 
+  const productPage = new ProductPage(page);
   await productPage.waitForLoad();
   await productPage.expectProductName('Combination Pliers');
   await productPage.expectPrice('14.15');
   await productPage.expectAddToCartVisible();
   await productPage.expectAddToFavoritesVisible();
 });
+
 
 
 
