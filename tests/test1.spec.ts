@@ -1,50 +1,55 @@
-
 import * as dotenv from 'dotenv';
 dotenv.config();
 
 import { test, expect } from '@playwright/test';
+import { LoginPage } from '../pages/login.page';
+import { HomePage } from '../pages/HomePage';
+import { ProductPage } from '../pages/ProductPage';
+import { AccountPage } from '../pages/AccountPage';
 
-test('login page loads correctly', async ({ page }) => {
-   
-    await page.goto('/auth/login');
-    
-    await page.getByTestId("email").fill(process.env.USER_EMAIL!);
 
-    await page.getByTestId("password").fill(process.env.USER_PASSWORD!);
 
-    await expect(page.getByTestId("login-submit")).toBeVisible();
+test('login page loads correctly and user sees account page', async ({ page }) => {
+  const loginPage = new LoginPage(page);
+  const accountPage = new AccountPage(page);
 
-    await page.getByTestId("login-submit").click();
+  await loginPage.goto();
 
-    await expect(page).toHaveURL('/account');
+  await expect(loginPage.submitButton).toBeVisible();
 
-    await expect(page.getByTestId('page-title')).toContainText('My account');
+  await loginPage.performLogin(process.env.USER_EMAIL!, process.env.USER_PASSWORD!);
 
-    await expect(page.getByTestId("nav-menu")).toContainText(process.env.USER_NAME!);
+  await expect(page).toHaveURL(/\/account/);
 
+  await accountPage.waitForLoad();
+
+  await expect(accountPage.pageTitle).toContainText('My account');
+
+  await expect(accountPage.header.navMenu).toContainText(process.env.USER_NAME!);
 });
+
 
 
     
 
 test('User can view Combination Pliers product details', async ({ page }) => {
-    await page.goto('/');
-  
-    const product = page.getByTestId('product-name').filter({ hasText: 'Combination Pliers' });
-    await expect(product).toBeVisible(); 
-    await product.click(); 
 
-    await expect(page).toHaveURL(/\/product/);
-    
-    await expect(page.getByTestId("product-name")).toHaveText('Combination Pliers');
-  
-    await expect(page.getByTestId('unit-price')).toHaveText('14.15');
-  
-    await expect(page.getByTestId("add-to-cart")).toBeVisible();
+  const homePage = new HomePage(page);
+  await homePage.goto();
 
-    await expect(page.getByTestId("add-to-favorites")).toBeVisible();
+  await homePage.openProduct('Combination Pliers');
 
-  });
+ 
+  const productPage = new ProductPage(page);
+  await productPage.waitForLoad();
+  await productPage.expectProductName('Combination Pliers');
+  await productPage.expectPrice('14.15');
+  await productPage.expectAddToCartVisible();
+  await productPage.expectAddToFavoritesVisible();
+});
+
+
+
 
   
 
